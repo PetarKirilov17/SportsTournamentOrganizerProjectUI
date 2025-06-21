@@ -1,30 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Mail, User } from 'lucide-react';
-import { Participant } from '../../types';
+import { Participant, ParticipantService } from '../../services/ParticipantService';
 import { ParticipantForm } from './ParticipantForm';
 
-interface ParticipantListProps {
-  participants: Participant[];
-  onAdd: (participant: Omit<Participant, 'id'>) => void;
-  onEdit: (id: number, participant: Partial<Participant>) => void;
-  onDelete: (id: number) => void;
-}
-
-export function ParticipantList({ participants, onAdd, onEdit, onDelete }: ParticipantListProps) {
+export function ParticipantList() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchParticipants();
+  }, []);
+
+  const fetchParticipants = async () => {
+    try {
+      const data = await ParticipantService.getParticipants();
+      setParticipants(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch participants');
+      console.error(err);
+    }
+  };
+
+  const handleAdd = async (participantData: Omit<Participant, 'id'>) => {
+    try {
+      await ParticipantService.createParticipant(participantData);
+      fetchParticipants();
+      setShowForm(false);
+    } catch (err) {
+      setError('Failed to add participant');
+      console.error(err);
+    }
+  };
+
+  const handleEdit = async (id: number, participantData: Partial<Omit<Participant, 'id'>>) => {
+    try {
+      await ParticipantService.updateParticipant(id, participantData);
+      fetchParticipants();
+      setEditingParticipant(null);
+      setShowForm(false);
+    } catch (err) {
+      setError(`Failed to update participant with id ${id}`);
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await ParticipantService.deleteParticipant(id);
+      fetchParticipants();
+    } catch (err) {
+      setError(`Failed to delete participant with id ${id}`);
+      console.error(err);
+    }
+  };
 
   const handleSubmit = (participantData: Omit<Participant, 'id'>) => {
     if (editingParticipant) {
-      onEdit(editingParticipant.id, participantData);
-      setEditingParticipant(null);
+      handleEdit(editingParticipant.id, participantData);
     } else {
-      onAdd(participantData);
+      handleAdd(participantData);
     }
-    setShowForm(false);
   };
 
-  const handleEdit = (participant: Participant) => {
+  const handleEditClick = (participant: Participant) => {
     setEditingParticipant(participant);
     setShowForm(true);
   };
@@ -34,13 +75,18 @@ export function ParticipantList({ participants, onAdd, onEdit, onDelete }: Parti
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">All Participants</h3>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setEditingParticipant(null);
+            setShowForm(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>Add Participant</span>
         </button>
       </div>
+
+      {error && <div className="text-red-500 bg-red-100 p-3 rounded">{error}</div>}
 
       {showForm && (
         <ParticipantForm
@@ -94,24 +140,26 @@ export function ParticipantList({ participants, onAdd, onEdit, onDelete }: Parti
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      participant.category === 'professional' ? 'bg-blue-100 text-blue-800' :
-                      participant.category === 'amateur' ? 'bg-green-100 text-green-800' :
-                      'bg-orange-100 text-orange-800'
-                    }`}>
-                      {participant.category}
-                    </span>
+                    {participant.category && (
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        participant.category === 'professional' ? 'bg-blue-100 text-blue-800' :
+                        participant.category === 'amateur' ? 'bg-green-100 text-green-800' :
+                        'bg-orange-100 text-orange-800'
+                      }`}>
+                        {participant.category}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
                       <button
-                        onClick={() => handleEdit(participant)}
+                        onClick={() => handleEditClick(participant)}
                         className="text-gray-400 hover:text-blue-600 transition-colors"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => onDelete(participant.id)}
+                        onClick={() => handleDelete(participant.id)}
                         className="text-gray-400 hover:text-red-600 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />

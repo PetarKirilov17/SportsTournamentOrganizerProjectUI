@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Team } from '../../types';
+import { Team } from '../../services/TeamService';
 
 interface TeamFormProps {
   team?: Team | null;
@@ -10,9 +10,18 @@ interface TeamFormProps {
 
 export function TeamForm({ team, onSubmit, onCancel }: TeamFormProps) {
   const [formData, setFormData] = useState({
-    name: team?.name || '',
-    category: team?.category || 'amateur' as const
+    name: '',
+    category: 'amateur' as 'amateur' | 'professional' | 'youth' | undefined,
   });
+
+  useEffect(() => {
+    if (team) {
+      setFormData({
+        name: team.name,
+        category: team.category,
+      });
+    }
+  }, [team]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +55,9 @@ export function TeamForm({ team, onSubmit, onCancel }: TeamFormProps) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category *
+            Category
           </label>
           <select
-            required
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as Team['category'] })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

@@ -1,30 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, MapPin, Users } from 'lucide-react';
-import { Venue } from '../../types';
+import { Venue, VenueService } from '../../services/VenueService';
 import { VenueForm } from './VenueForm';
 
-interface VenueListProps {
-  venues: Venue[];
-  onAdd: (venue: Omit<Venue, 'id'>) => void;
-  onEdit: (id: number, venue: Partial<Venue>) => void;
-  onDelete: (id: number) => void;
-}
-
-export function VenueList({ venues, onAdd, onEdit, onDelete }: VenueListProps) {
+export function VenueList() {
+  const [venues, setVenues] = useState<Venue[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingVenue, setEditingVenue] = useState<Venue | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchVenues();
+  }, []);
+
+  const fetchVenues = async () => {
+    try {
+      const data = await VenueService.getVenues();
+      setVenues(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch venues');
+      console.error(err);
+    }
+  };
+
+  const handleAdd = async (venueData: Omit<Venue, 'id'>) => {
+    try {
+      await VenueService.createVenue(venueData);
+      fetchVenues();
+      setShowForm(false);
+    } catch (err) {
+      setError('Failed to add venue');
+      console.error(err);
+    }
+  };
+
+  const handleEdit = async (id: number, venueData: Partial<Omit<Venue, 'id'>>) => {
+    try {
+      await VenueService.updateVenue(id, venueData);
+      fetchVenues();
+      setEditingVenue(null);
+      setShowForm(false);
+    } catch (err) {
+      setError(`Failed to update venue with id ${id}`);
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await VenueService.deleteVenue(id);
+      fetchVenues();
+    } catch (err) {
+      setError(`Failed to delete venue with id ${id}`);
+      console.error(err);
+    }
+  };
 
   const handleSubmit = (venueData: Omit<Venue, 'id'>) => {
     if (editingVenue) {
-      onEdit(editingVenue.id, venueData);
-      setEditingVenue(null);
+      handleEdit(editingVenue.id, venueData);
     } else {
-      onAdd(venueData);
+      handleAdd(venueData);
     }
-    setShowForm(false);
   };
 
-  const handleEdit = (venue: Venue) => {
+  const handleEditClick = (venue: Venue) => {
     setEditingVenue(venue);
     setShowForm(true);
   };
@@ -34,13 +75,18 @@ export function VenueList({ venues, onAdd, onEdit, onDelete }: VenueListProps) {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">All Venues</h3>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setEditingVenue(null);
+            setShowForm(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>Add Venue</span>
         </button>
       </div>
+
+      {error && <div className="text-red-500 bg-red-100 p-3 rounded">{error}</div>}
 
       {showForm && (
         <VenueForm
@@ -60,13 +106,13 @@ export function VenueList({ venues, onAdd, onEdit, onDelete }: VenueListProps) {
               <h4 className="text-lg font-semibold text-gray-900">{venue.name}</h4>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => handleEdit(venue)}
+                  onClick={() => handleEditClick(venue)}
                   className="text-gray-400 hover:text-blue-600 transition-colors"
                 >
                   <Edit className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => onDelete(venue.id)}
+                  onClick={() => handleDelete(venue.id)}
                   className="text-gray-400 hover:text-red-600 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />

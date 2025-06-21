@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Venue } from '../../types';
+import { Venue } from '../../services/VenueService';
 
 interface VenueFormProps {
   venue?: Venue | null;
-  onSubmit: (venue: Omit<Venue, 'id'>) => void;
+  onSubmit: (venue: Omit<Venue, 'id' | 'capacity'> & { capacity: number | undefined }) => void;
   onCancel: () => void;
 }
 
 export function VenueForm({ venue, onSubmit, onCancel }: VenueFormProps) {
   const [formData, setFormData] = useState({
-    name: venue?.name || '',
-    address: venue?.address || '',
-    capacity: venue?.capacity || 0
+    name: '',
+    address: '',
+    capacity: 0,
   });
+
+  useEffect(() => {
+    if (venue) {
+      setFormData({
+        name: venue.name,
+        address: venue.address || '',
+        capacity: venue.capacity,
+      });
+    }
+  }, [venue]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

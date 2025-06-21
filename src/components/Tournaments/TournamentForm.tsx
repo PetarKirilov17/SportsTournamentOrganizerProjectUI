@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Tournament } from '../../types';
+import { Tournament } from '../../services/TournamentService';
 
 interface TournamentFormProps {
   tournament?: Tournament | null;
@@ -10,14 +10,26 @@ interface TournamentFormProps {
 
 export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFormProps) {
   const [formData, setFormData] = useState({
-    name: tournament?.name || '',
-    sport_type: tournament?.sport_type || '',
-    start_date: tournament?.start_date || '',
-    end_date: tournament?.end_date || '',
-    location: tournament?.location || '',
-    rules: tournament?.rules || '',
-    status: tournament?.status || 'upcoming' as const
+    name: '',
+    sport_type: '',
+    start_date: '',
+    end_date: '',
+    location: '',
+    rules: '',
   });
+
+  useEffect(() => {
+    if (tournament) {
+      setFormData({
+        name: tournament.name,
+        sport_type: tournament.sport_type,
+        start_date: tournament.start_date.split('T')[0], // Format for date input
+        end_date: tournament.end_date.split('T')[0],     // Format for date input
+        location: tournament.location || '',
+        rules: tournament.rules || '',
+      });
+    }
+  }, [tournament]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,21 +110,6 @@ export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFor
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status
-          </label>
-          <select
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as Tournament['status'] })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="upcoming">Upcoming</option>
-            <option value="ongoing">Ongoing</option>
-            <option value="completed">Completed</option>
-          </select>
         </div>
 
         <div className="md:col-span-2">

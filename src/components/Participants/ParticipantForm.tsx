@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Participant } from '../../types';
+import { Participant } from '../../services/ParticipantService';
 
 interface ParticipantFormProps {
   participant?: Participant | null;
@@ -10,11 +10,22 @@ interface ParticipantFormProps {
 
 export function ParticipantForm({ participant, onSubmit, onCancel }: ParticipantFormProps) {
   const [formData, setFormData] = useState({
-    first_name: participant?.first_name || '',
-    last_name: participant?.last_name || '',
-    email: participant?.email || '',
-    category: participant?.category || 'amateur' as const
+    first_name: '',
+    last_name: '',
+    email: '',
+    category: 'amateur' as 'amateur' | 'professional' | 'youth' | undefined,
   });
+
+  useEffect(() => {
+    if (participant) {
+      setFormData({
+        first_name: participant.first_name,
+        last_name: participant.last_name,
+        email: participant.email,
+        category: participant.category,
+      });
+    }
+  }, [participant]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,10 +85,9 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category *
+            Category
           </label>
           <select
-            required
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as Participant['category'] })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
