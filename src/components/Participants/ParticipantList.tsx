@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Edit, Trash2, Mail, User } from 'lucide-react';
 import { Participant, ParticipantService } from '../../services/ParticipantService';
 import { ParticipantForm } from './ParticipantForm';
+import { formatDateOnly } from '../../utils/dateUtils';
 
 export function ParticipantList() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const editingParticipantRef = useRef<Participant | null>(null);
 
   useEffect(() => {
     fetchParticipants();
   }, []);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    editingParticipantRef.current = editingParticipant;
+  }, [editingParticipant]);
 
   const fetchParticipants = async () => {
     try {
@@ -24,7 +31,7 @@ export function ParticipantList() {
     }
   };
 
-  const handleAdd = async (participantData: Omit<Participant, 'id'>) => {
+  const handleAdd = async (participantData: Omit<Participant, 'id' | 'createdAt' | 'updatedAt' | 'teamMemberships'>) => {
     try {
       await ParticipantService.createParticipant(participantData);
       fetchParticipants();
@@ -35,11 +42,12 @@ export function ParticipantList() {
     }
   };
 
-  const handleEdit = async (id: number, participantData: Partial<Omit<Participant, 'id'>>) => {
+  const handleEdit = async (id: number, participantData: Partial<Omit<Participant, 'id' | 'createdAt' | 'updatedAt' | 'teamMemberships'>>) => {
     try {
       await ParticipantService.updateParticipant(id, participantData);
       fetchParticipants();
       setEditingParticipant(null);
+      editingParticipantRef.current = null;
       setShowForm(false);
     } catch (err) {
       setError(`Failed to update participant with id ${id}`);
@@ -57,9 +65,11 @@ export function ParticipantList() {
     }
   };
 
-  const handleSubmit = (participantData: Omit<Participant, 'id'>) => {
-    if (editingParticipant) {
-      handleEdit(editingParticipant.id, participantData);
+  const handleSubmit = (participantData: Omit<Participant, 'id' | 'createdAt' | 'updatedAt' | 'teamMemberships'>) => {
+    const currentEditingParticipant = editingParticipantRef.current;
+    
+    if (currentEditingParticipant && currentEditingParticipant.id) {
+      handleEdit(currentEditingParticipant.id, participantData);
     } else {
       handleAdd(participantData);
     }
@@ -77,6 +87,7 @@ export function ParticipantList() {
         <button
           onClick={() => {
             setEditingParticipant(null);
+            editingParticipantRef.current = null;
             setShowForm(true);
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
@@ -95,6 +106,7 @@ export function ParticipantList() {
           onCancel={() => {
             setShowForm(false);
             setEditingParticipant(null);
+            editingParticipantRef.current = null;
           }}
         />
       )}
@@ -113,6 +125,9 @@ export function ParticipantList() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Teams
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -128,7 +143,10 @@ export function ParticipantList() {
                       </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {participant.first_name} {participant.last_name}
+                          {participant.firstName} {participant.lastName}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Created: {formatDateOnly(participant.createdAt)}
                         </div>
                       </div>
                     </div>
@@ -140,15 +158,35 @@ export function ParticipantList() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {participant.category && (
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        participant.category === 'professional' ? 'bg-blue-100 text-blue-800' :
-                        participant.category === 'amateur' ? 'bg-green-100 text-green-800' :
-                        'bg-orange-100 text-orange-800'
-                      }`}>
-                        {participant.category}
-                      </span>
-                    )}
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      participant.category === 'professional' ? 'bg-blue-100 text-blue-800' :
+                      participant.category === 'amateur' ? 'bg-green-100 text-green-800' :
+                      'bg-orange-100 text-orange-800'
+                    }`}>
+                      {participant.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {participant.teamMemberships && participant.teamMemberships.length > 0 ? (
+                        <div className="space-y-1">
+                          {participant.teamMemberships.map((membership, index) => (
+                            <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                              <span className="font-medium">{membership.teamName}</span>
+                              <span className="text-gray-500 ml-1">({membership.role})</span>
+                              {membership.jerseyNumber && (
+                                <span className="text-gray-500 ml-1">#{membership.jerseyNumber}</span>
+                              )}
+                              <div className="text-gray-400 text-xs mt-1">
+                                Added: {formatDateOnly(membership.addedAt)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No teams</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">

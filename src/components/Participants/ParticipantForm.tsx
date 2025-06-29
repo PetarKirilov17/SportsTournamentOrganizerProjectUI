@@ -4,25 +4,33 @@ import { Participant } from '../../services/ParticipantService';
 
 interface ParticipantFormProps {
   participant?: Participant | null;
-  onSubmit: (participant: Omit<Participant, 'id'>) => void;
+  onSubmit: (participant: Omit<Participant, 'id' | 'createdAt' | 'updatedAt' | 'teamMemberships'>) => void;
   onCancel: () => void;
 }
 
 export function ParticipantForm({ participant, onSubmit, onCancel }: ParticipantFormProps) {
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     email: '',
-    category: 'amateur' as 'amateur' | 'professional' | 'youth' | undefined,
+    category: 'amateur' as 'amateur' | 'professional' | 'youth',
   });
 
   useEffect(() => {
     if (participant) {
       setFormData({
-        first_name: participant.first_name,
-        last_name: participant.last_name,
+        firstName: participant.firstName,
+        lastName: participant.lastName,
         email: participant.email,
         category: participant.category,
+      });
+    } else {
+      // Reset form when participant is null (add mode)
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        category: 'amateur',
       });
     }
   }, [participant]);
@@ -51,8 +59,8 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
           <input
             type="text"
             required
-            value={formData.first_name}
-            onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -64,8 +72,8 @@ export function ParticipantForm({ participant, onSubmit, onCancel }: Participant
           <input
             type="text"
             required
-            value={formData.last_name}
-            onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
