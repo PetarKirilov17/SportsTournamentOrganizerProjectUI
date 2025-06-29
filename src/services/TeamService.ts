@@ -1,10 +1,5 @@
 import API_BASE_URL from './api';
-
-export interface Team {
-  id: number;
-  name: string;
-  category?: 'amateur' | 'professional' | 'youth';
-}
+import { Team } from '../types';
 
 export const TeamService = {
   getTeams: async (): Promise<Team[]> => {
