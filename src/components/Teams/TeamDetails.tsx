@@ -29,6 +29,8 @@ export function TeamDetails({
   const [memberCount, setMemberCount] = useState(0);
   const [currentTeamId, setCurrentTeamId] = useState<number | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [editingTeamName, setEditingTeamName] = useState(false);
+  const [teamNameEdit, setTeamNameEdit] = useState('');
 
   useEffect(() => {
     if (isOpen && teamId && teamId > 0) {
@@ -50,6 +52,7 @@ export function TeamDetails({
       setTeam(data);
       setCurrentTeamId(teamId);
       setError(null);
+      setMemberCount(data?.members?.length || 0);
     } catch (err) {
       console.error('TeamDetails: Failed to fetch team:', err);
       setError('Failed to fetch team details');
@@ -84,6 +87,21 @@ export function TeamDetails({
       return;
     }
 
+    // Check if team has members
+    if (memberCount > 0) {
+      const confirmMessage = `This team has ${memberCount} member(s). You must remove all members before deleting the team. Would you like to view the team members?`;
+      if (confirm(confirmMessage)) {
+        // Scroll to team members section or focus on it
+        const membersSection = document.querySelector('[data-team-members]');
+        if (membersSection) {
+          membersSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        setError('Please remove all team members before deleting the team.');
+        return;
+      }
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this team? This action cannot be undone.')) {
       return;
     }
@@ -93,22 +111,57 @@ export function TeamDetails({
       onTeamDeleted();
       onClose();
     } catch (err) {
-      setError('Failed to delete team');
-      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete team';
+      console.error('TeamDetails: Delete team error:', err);
+      
+      // Check if the error is about team members
+      if (errorMessage.toLowerCase().includes('member') || errorMessage.toLowerCase().includes('participant')) {
+        setError('Cannot delete team: Please remove all team members first before deleting the team.');
+      } else {
+        setError(errorMessage);
+      }
     }
   };
 
   const handleMemberRemoved = () => {
     // Refresh member count or team data if needed
     fetchTeam();
+    setMemberCount(prev => Math.max(0, prev - 1));
   };
 
   const handleParticipantAdded = () => {
     // Refresh member count or team data if needed
     console.log('TeamDetails: Participant added, refreshing team data');
     fetchTeam();
+    setMemberCount(prev => prev + 1);
     // Force a re-render of the TeamMemberList by triggering a state change
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleTeamNameEdit = () => {
+    if (!team) return;
+    setTeamNameEdit(team.name || '');
+    setEditingTeamName(true);
+  };
+
+  const handleTeamNameSave = async () => {
+    if (!team || !teamNameEdit.trim()) return;
+    
+    try {
+      await TeamService.updateTeam(team.id, { name: teamNameEdit.trim() });
+      await fetchTeam();
+      setEditingTeamName(false);
+      setTeamNameEdit('');
+      onTeamUpdated();
+    } catch (err) {
+      setError('Failed to update team name');
+      console.error(err);
+    }
+  };
+
+  const handleTeamNameCancel = () => {
+    setEditingTeamName(false);
+    setTeamNameEdit('');
   };
 
   const handleClose = () => {
@@ -150,49 +203,10 @@ export function TeamDetails({
               </div>
             ) : team ? (
               <>
-                {/* Team Information Section */}
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Team Information
-                      </h3>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div>
-                          <span className="font-medium">Name:</span> {team.name}
-                        </div>
-                        {team.category && (
-                          <div>
-                            <span className="font-medium">Category:</span>{' '}
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              team.category === 'professional' ? 'bg-blue-100 text-blue-800' :
-                              team.category === 'amateur' ? 'bg-green-100 text-green-800' :
-                              'bg-orange-100 text-orange-800'
-                            }`}>
-                              {team.category}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setShowEditForm(true)}
-                        className="text-gray-400 hover:text-blue-600 transition-colors"
-                        title="Edit team"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={handleDelete}
-                        className="text-gray-400 hover:text-red-600 transition-colors"
-                        title="Delete team"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                {(() => {
+                  console.log('TeamDetails: Rendering team information:', team);
+                  return null;
+                })()}
               </>
             ) : (
               <div className="text-center py-8 text-gray-500">

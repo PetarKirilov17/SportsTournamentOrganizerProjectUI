@@ -20,7 +20,7 @@ export interface AddTeamMemberDTO {
 
 export interface UpdateTeamMemberDTO {
   role?: string;
-  jerseyNumber?: number;
+  jersey_number?: number;
 }
 
 export interface ApiResponseDTO<T> {
@@ -108,6 +108,9 @@ export const TeamMemberService = {
   },
 
   updateTeamMember: async (teamId: number, memberId: number, updateDTO: UpdateTeamMemberDTO): Promise<TeamMember> => {
+    console.log('TeamMemberService.updateTeamMember called with:', { teamId, memberId, updateDTO });
+    console.log('TeamMemberService: Request body being sent:', JSON.stringify(updateDTO, null, 2));
+    
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/${memberId}`, {
       method: 'PUT',
       headers: {
@@ -118,10 +121,12 @@ export const TeamMemberService = {
     
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('TeamMemberService.updateTeamMember error:', JSON.stringify(errorData, null, 2));
       throw new Error(errorData.message || 'Failed to update team member');
     }
     
     const data = await response.json();
+    console.log('TeamMemberService.updateTeamMember success:', data);
     return transformTeamMemberResponse(data.data);
   },
 

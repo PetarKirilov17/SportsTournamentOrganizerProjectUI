@@ -84,8 +84,14 @@ export function TeamMemberList({ teamId, teamName, onMemberRemoved }: TeamMember
     try {
       const updateDTO: UpdateTeamMemberDTO = {
         role: editForm.role || undefined,
-        jerseyNumber: editForm.jerseyNumber ? parseInt(editForm.jerseyNumber) : undefined,
+        jersey_number: editForm.jerseyNumber ? parseInt(editForm.jerseyNumber) : undefined,
       };
+
+      console.log('TeamMemberList: Updating team member with:', {
+        teamId,
+        memberId: editingMember.id,
+        updateDTO
+      });
 
       await TeamMemberService.updateTeamMember(teamId, editingMember.id, updateDTO);
       await fetchTeamMembers();

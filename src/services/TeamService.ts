@@ -51,7 +51,9 @@ export const TeamService = {
       method: 'DELETE',
     });
     if (!response.ok) {
-      throw new Error(`Failed to delete team with id ${id}`);
+      const errorData = await response.json();
+      const errorMessage = errorData.message || `Failed to delete team with id ${id}`;
+      throw new Error(errorMessage);
     }
   },
 }; 

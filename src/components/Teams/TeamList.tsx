@@ -12,12 +12,9 @@ export function TeamList() {
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
   const [showTeamDetails, setShowTeamDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'error'>('checking');
 
   useEffect(() => {
     fetchTeams();
-    // Test backend connection
-    testBackendConnection();
   }, []);
 
   const fetchTeams = async () => {
@@ -28,24 +25,6 @@ export function TeamList() {
     } catch (err) {
       setError('Failed to fetch teams');
       console.error(err);
-    }
-  };
-
-  const testBackendConnection = async () => {
-    try {
-      console.log('Testing backend connection...');
-      const response = await fetch('http://localhost:8080/teams');
-      console.log('Backend test response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Backend test response data:', data);
-        setBackendStatus('connected');
-      } else {
-        setBackendStatus('error');
-      }
-    } catch (error) {
-      console.error('Backend connection test failed:', error);
-      setBackendStatus('error');
     }
   };
 
@@ -118,20 +97,6 @@ export function TeamList() {
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">All Teams</h3>
         <div className="flex items-center space-x-4">
-          {/* Backend Status Indicator */}
-          <div className="flex items-center space-x-2">
-            <div className={`w-3 h-3 rounded-full ${
-              backendStatus === 'checking' ? 'bg-yellow-500' :
-              backendStatus === 'connected' ? 'bg-green-500' :
-              'bg-red-500'
-            }`}></div>
-            <span className="text-sm text-gray-600">
-              {backendStatus === 'checking' ? 'Checking backend...' :
-               backendStatus === 'connected' ? 'Backend connected' :
-               'Backend error'}
-            </span>
-          </div>
-          
           <button
             onClick={() => {
               setEditingTeam(null);

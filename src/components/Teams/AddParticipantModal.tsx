@@ -39,12 +39,18 @@ export function AddParticipantModal({
   }, [isOpen, teamId]);
 
   useEffect(() => {
-    filterParticipants();
-  }, [participants, searchTerm]);
+    // Only filter if we have participants loaded
+    if (participants.length > 0) {
+      filterParticipants();
+    }
+  }, [participants, searchTerm, existingMemberIds]);
 
   const fetchParticipants = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // Fetch all participants first
       const allParticipants = await ParticipantService.getParticipants();
       setParticipants(allParticipants);
       
@@ -59,7 +65,9 @@ export function AddParticipantModal({
         setExistingMemberIds(new Set());
       }
       
-      setError(null);
+      // Filter participants after both data sources are loaded
+      filterParticipants();
+      
     } catch (err) {
       console.error('AddParticipantModal: Error fetching participants:', err);
       setError('Failed to fetch participants');
@@ -69,6 +77,12 @@ export function AddParticipantModal({
   };
 
   const filterParticipants = () => {
+    // Only filter if we have participants loaded
+    if (participants.length === 0) {
+      setFilteredParticipants([]);
+      return;
+    }
+    
     const filtered = participants.filter(participant => {
       const isNotInTeam = !existingMemberIds.has(participant.id);
       const matchesSearch = participant.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -187,6 +201,7 @@ export function AddParticipantModal({
             {loading ? (
               <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading available participants...</span>
               </div>
             ) : (
               <div className="space-y-2 max-h-60 overflow-y-auto">
