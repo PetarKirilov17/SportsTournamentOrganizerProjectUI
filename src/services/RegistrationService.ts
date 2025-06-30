@@ -9,6 +9,7 @@ export enum RegistrationStatus {
 }
 
 export interface Registration {
+  id: number;
   team_id: number;
   team: Team;
   tournament_id: number;
@@ -38,13 +39,13 @@ export const RegistrationService = {
     return response.json();
   },
 
-  updateRegistration: async (tournamentId: number, teamId: number, status: RegistrationStatus): Promise<Registration> => {
-    const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/registrations/${teamId}`, {
+  updateRegistration: async (registrationId: number, tournamentId: number, teamId: number, status: RegistrationStatus): Promise<Registration> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/registrations/${registrationId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ team_id: teamId, status }),
     });
     if (!response.ok) {
       throw new Error('Failed to update registration');

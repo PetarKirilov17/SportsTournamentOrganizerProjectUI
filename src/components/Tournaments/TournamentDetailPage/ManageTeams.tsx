@@ -53,8 +53,18 @@ export function ManageTeams({ tournamentId }: ManageTeamsProps) {
     }
   };
 
+  const handleStatusChange = async (registrationId: number, teamId: number, status: RegistrationStatus) => {
+    try {
+      await RegistrationService.updateRegistration(registrationId, tournamentId, teamId, status);
+      fetchData(); // Refresh data
+    } catch (err) {
+      setError('Failed to update registration status');
+      console.error(err);
+    }
+  };
+
   const invitedTeams = registrations.filter(r => r.status === RegistrationStatus.INVITED);
-  const registeredTeamIds = registrations.map(r => r.team_id);
+  const registeredTeamIds = registrations.map(r => r.team.id);
   const availableTeams = allTeams.filter(t => !registeredTeamIds.includes(t.id));
 
   return (
@@ -68,19 +78,30 @@ export function ManageTeams({ tournamentId }: ManageTeamsProps) {
           <div>
             <h4 className="font-medium text-gray-800 mb-2 flex items-center">
               <Mail className="w-5 h-5 mr-2 text-gray-500" />
-              Invited Teams
+              Team Registrations
             </h4>
-            {invitedTeams.length > 0 ? (
+            {registrations.length > 0 ? (
               <ul className="divide-y divide-gray-200">
-                {invitedTeams.map(reg => (
+                {registrations.map(reg => (
+                  
                   <li key={reg.team_id} className="py-2 flex justify-between items-center">
                     <span>{reg.team.name}</span>
-                    <span className="text-sm text-gray-500 capitalize">{reg.status}</span>
+                    <select
+                      value={reg.status}
+                      onChange={(e) => handleStatusChange(reg.id, reg.team.id, e.target.value as RegistrationStatus)}
+                      className="capitalize block p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {Object.values(RegistrationStatus).map(status => (
+                        <option key={status} value={status} className="capitalize">
+                          {status.charAt(0) + status.slice(1).toLowerCase()}
+                        </option>
+                      ))}
+                    </select>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500 text-sm">No teams have been invited yet.</p>
+              <p className="text-gray-500 text-sm">No teams have been invited or registered yet.</p>
             )}
           </div>
           <div className="pt-4">
