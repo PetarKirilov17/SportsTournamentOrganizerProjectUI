@@ -1,14 +1,19 @@
 import API_BASE_URL from './api';
 import { Team } from './TeamService';
 
+export enum RegistrationStatus {
+  INVITED = 'INVITED',
+  REGISTERED = 'REGISTERED',
+  DECLINED = 'DECLINED',
+  CANCELLED = 'CANCELLED',
+}
+
 export interface Registration {
   team_id: number;
   team: Team;
   tournament_id: number;
-  status: 'invited' | 'registered' | 'declined' | 'cancelled';
+  status: RegistrationStatus;
 }
-
-export type RegistrationStatus = 'invited' | 'registered' | 'declined' | 'cancelled';
 
 export const RegistrationService = {
   getRegistrations: async (tournamentId: number): Promise<Registration[]> => {
