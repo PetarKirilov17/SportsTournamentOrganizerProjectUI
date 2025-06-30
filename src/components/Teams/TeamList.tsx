@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Users } from 'lucide-react';
-import { Team, TeamService } from '../../services/TeamService';
+import { Plus, Edit, Trash2, Users, Eye } from 'lucide-react';
+import { TeamService } from '../../services/TeamService';
+import { Team } from '../../types';
 import { TeamForm } from './TeamForm';
+import { TeamDetails } from './TeamDetails';
 
 export function TeamList() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+  const [showTeamDetails, setShowTeamDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,20 +74,40 @@ export function TeamList() {
     setShowForm(true);
   };
 
+  const handleTeamClick = (team: Team) => {
+    setSelectedTeamId(team.id);
+    setShowTeamDetails(true);
+  };
+
+  const handleTeamDetailsClose = () => {
+    setSelectedTeamId(null);
+    setShowTeamDetails(false);
+  };
+
+  const handleTeamUpdated = () => {
+    fetchTeams();
+  };
+
+  const handleTeamDeleted = () => {
+    fetchTeams();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">All Teams</h3>
-        <button
-          onClick={() => {
-            setEditingTeam(null);
-            setShowForm(true);
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Team</span>
-        </button>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => {
+              setEditingTeam(null);
+              setShowForm(true);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Team</span>
+          </button>
+        </div>
       </div>
 
       {error && <div className="text-red-500 bg-red-100 p-3 rounded">{error}</div>}
@@ -101,19 +125,41 @@ export function TeamList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {teams.map((team) => (
-          <div key={team.id} className="bg-white rounded-lg shadow-md border border-gray-100 p-6">
+          <div 
+            key={team.id} 
+            className="bg-white rounded-lg shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => handleTeamClick(team)}
+          >
             <div className="flex justify-between items-start mb-4">
               <h4 className="text-lg font-semibold text-gray-900">{team.name}</h4>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => handleEditClick(team)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTeamClick(team);
+                  }}
                   className="text-gray-400 hover:text-blue-600 transition-colors"
+                  title="View details"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditClick(team);
+                  }}
+                  className="text-gray-400 hover:text-blue-600 transition-colors"
+                  title="Edit team"
                 >
                   <Edit className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(team.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(team.id);
+                  }}
                   className="text-gray-400 hover:text-red-600 transition-colors"
+                  title="Delete team"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -130,10 +176,25 @@ export function TeamList() {
                   {team.category}
                 </span>
               )}
+              <div className="flex items-center space-x-1 text-gray-500 text-sm">
+                <Users className="w-4 h-4" />
+                <span>Click to view members</span>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Team Details Modal */}
+      {showTeamDetails && selectedTeamId && (
+        <TeamDetails
+          teamId={selectedTeamId}
+          isOpen={showTeamDetails}
+          onClose={handleTeamDetailsClose}
+          onTeamUpdated={handleTeamUpdated}
+          onTeamDeleted={handleTeamDeleted}
+        />
+      )}
     </div>
   );
 }

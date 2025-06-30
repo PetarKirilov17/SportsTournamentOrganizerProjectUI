@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Calendar, MapPin } from 'lucide-react';
-import { Tournament, TournamentService } from '../../services/TournamentService';
+import { TournamentService } from '../../services/TournamentService';
+import { Tournament } from '../../types';
 import { TournamentForm } from './TournamentForm';
 
 export function TournamentList() {
@@ -124,7 +125,7 @@ export function TournamentList() {
               <div className="flex items-center text-gray-600">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span className="text-sm">
-                  {new Date(tournament.start_date).toLocaleDateString()} - {new Date(tournament.end_date).toLocaleDateString()}
+                  {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
                 </span>
               </div>
               {tournament.location && (
@@ -136,7 +137,7 @@ export function TournamentList() {
             </div>
             
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-500">{tournament.sport_type}</span>
+              <span className="text-sm font-medium text-gray-500">{tournament.sportType}</span>
             </div>
           </div>
         ))}

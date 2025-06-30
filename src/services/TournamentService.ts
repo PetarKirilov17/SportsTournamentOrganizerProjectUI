@@ -1,18 +1,8 @@
-import API_BASE_URL from './api';
-
-export interface Tournament {
-  id: number;
-  name: string;
-  sport_type: string;
-  start_date: string;
-  end_date: string;
-  location?: string;
-  rules?: string;
-}
+import { Tournament } from '../types';
 
 export const TournamentService = {
   getTournaments: async (): Promise<Tournament[]> => {
-    const response = await fetch(`${API_BASE_URL}/tournaments`);
+    const response = await fetch('/tournaments');
     if (!response.ok) {
       throw new Error('Failed to fetch tournaments');
     }
@@ -20,7 +10,7 @@ export const TournamentService = {
   },
 
   getTournamentById: async (id: number): Promise<Tournament> => {
-    const response = await fetch(`${API_BASE_URL}/tournaments/${id}`);
+    const response = await fetch(`/tournaments/${id}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch tournament with id ${id}`);
     }
@@ -28,7 +18,7 @@ export const TournamentService = {
   },
 
   createTournament: async (tournamentData: Omit<Tournament, 'id'>): Promise<Tournament> => {
-    const response = await fetch(`${API_BASE_URL}/tournaments`, {
+    const response = await fetch('/tournaments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +32,7 @@ export const TournamentService = {
   },
 
   updateTournament: async (id: number, tournamentData: Partial<Omit<Tournament, 'id'>>): Promise<Tournament> => {
-    const response = await fetch(`${API_BASE_URL}/tournaments/${id}`, {
+    const response = await fetch(`/tournaments/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +46,7 @@ export const TournamentService = {
   },
 
   deleteTournament: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/tournaments/${id}`, {
+    const response = await fetch(`/tournaments/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {

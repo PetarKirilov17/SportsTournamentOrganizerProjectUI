@@ -1,4 +1,4 @@
-import API_BASE_URL from './api';
+import { Participant } from '../types';
 
 export interface TeamMembership {
   teamId: number;
@@ -9,19 +9,14 @@ export interface TeamMembership {
   addedAt: string;
 }
 
-export interface Participant {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  category: 'amateur' | 'professional' | 'youth';
+export interface ParticipantWithMemberships extends Participant {
   createdAt: string;
   updatedAt: string;
   teamMemberships: TeamMembership[];
 }
 
 // Helper function to transform backend response to frontend format
-const transformParticipantResponse = (data: any): Participant => {
+const transformParticipantResponse = (data: any): ParticipantWithMemberships => {
   return {
     id: data.id,
     firstName: data.first_name,
@@ -42,8 +37,8 @@ const transformParticipantResponse = (data: any): Participant => {
 };
 
 export const ParticipantService = {
-  getParticipants: async (): Promise<Participant[]> => {
-    const response = await fetch(`${API_BASE_URL}/participants`);
+  getParticipants: async (): Promise<ParticipantWithMemberships[]> => {
+    const response = await fetch('/participants');
     if (!response.ok) {
       throw new Error('Failed to fetch participants');
     }
@@ -51,8 +46,8 @@ export const ParticipantService = {
     return data.map(transformParticipantResponse);
   },
 
-  getParticipantById: async (id: number): Promise<Participant> => {
-    const response = await fetch(`${API_BASE_URL}/participants/${id}`);
+  getParticipantById: async (id: number): Promise<ParticipantWithMemberships> => {
+    const response = await fetch(`/participants/${id}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch participant with id ${id}`);
     }
@@ -60,7 +55,7 @@ export const ParticipantService = {
     return transformParticipantResponse(data);
   },
 
-  createParticipant: async (participantData: Omit<Participant, 'id' | 'createdAt' | 'updatedAt' | 'teamMemberships'>): Promise<Participant> => {
+  createParticipant: async (participantData: Omit<Participant, 'id'>): Promise<ParticipantWithMemberships> => {
     // Convert camelCase to snake_case for API
     const apiData = {
       first_name: participantData.firstName,
@@ -69,7 +64,7 @@ export const ParticipantService = {
       category: participantData.category.toUpperCase(),
     };
 
-    const response = await fetch(`${API_BASE_URL}/participants`, {
+    const response = await fetch('/participants', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +78,7 @@ export const ParticipantService = {
     return transformParticipantResponse(data);
   },
 
-  updateParticipant: async (id: number, participantData: Partial<Omit<Participant, 'id' | 'createdAt' | 'updatedAt' | 'teamMemberships'>>): Promise<Participant> => {
+  updateParticipant: async (id: number, participantData: Partial<Omit<Participant, 'id'>>): Promise<ParticipantWithMemberships> => {
     // Convert camelCase to snake_case for API
     const apiData: any = {
       id: id, // Include ID in request body in case backend expects it
@@ -93,7 +88,7 @@ export const ParticipantService = {
     if (participantData.email !== undefined) apiData.email = participantData.email;
     if (participantData.category !== undefined) apiData.category = participantData.category.toUpperCase();
 
-    const response = await fetch(`${API_BASE_URL}/participants/${id}`, {
+    const response = await fetch(`/participants/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +107,7 @@ export const ParticipantService = {
   },
 
   deleteParticipant: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/participants/${id}`, {
+    const response = await fetch(`/participants/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { VenueService } from '../../services/VenueService';
+import { Venue } from '../../types';
 import { Plus, Edit, Trash2, MapPin, Users } from 'lucide-react';
-import { Venue, VenueService } from '../../services/VenueService';
 import { VenueForm } from './VenueForm';
 
 export function VenueList() {
