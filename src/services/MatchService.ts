@@ -45,8 +45,8 @@ export const MatchService = {
     return response.json();
   },
 
-  updateMatch: async (matchId: number, matchData: Partial<Omit<Match, 'id' | 'home_team' | 'away_team' | 'venue' | 'tournament_id'>>): Promise<Match> => {
-    const response = await fetch(`${API_BASE_URL}/matches/${matchId}`, {
+  updateMatch: async (tournamentId: number, matchId: number, matchData): Promise<Match> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/matches/${matchId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
