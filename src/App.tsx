@@ -3,106 +3,35 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Header } from './components/Layout/Header';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { TournamentList } from './components/Tournaments/TournamentList';
+import { TournamentDetailPage } from './components/Tournaments/TournamentDetailPage/TournamentDetailPage';
 import { TeamList } from './components/Teams/TeamList';
 import { ParticipantList } from './components/Participants/ParticipantList';
 import { VenueList } from './components/Venues/VenueList';
 import { SimpleList } from './components/Common/SimpleList';
 import { 
-  mockTournaments, 
-  mockTeams, 
-  mockParticipants, 
-  mockVenues,
   mockMatches,
   mockRegistrations,
   mockNotifications
 } from './data/mockData';
-import { Tournament, Team, Participant, Venue } from './types';
 import { Calendar, UserCheck, Bell } from 'lucide-react';
 
 function App() {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [tournaments, setTournaments] = useState(mockTournaments);
-  const [teams, setTeams] = useState(mockTeams);
-  const [participants, setParticipants] = useState(mockParticipants);
-  const [venues, setVenues] = useState(mockVenues);
+  const [viewingTournamentId, setViewingTournamentId] = useState<number | null>(null);
 
-  // Tournament operations
-  const handleAddTournament = (tournamentData: Omit<Tournament, 'id'>) => {
-    const newTournament = {
-      ...tournamentData,
-      id: Math.max(...tournaments.map(t => t.id)) + 1
-    };
-    setTournaments([...tournaments, newTournament]);
+  const handleTournamentClick = (id: number) => {
+    setViewingTournamentId(id);
+    setActiveSection('tournaments'); // Ensure the section is correct
   };
 
-  const handleEditTournament = (id: number, tournamentData: Partial<Tournament>) => {
-    setTournaments(tournaments.map(t => 
-      t.id === id ? { ...t, ...tournamentData } : t
-    ));
-  };
-
-  const handleDeleteTournament = (id: number) => {
-    setTournaments(tournaments.filter(t => t.id !== id));
-  };
-
-  // Team operations
-  const handleAddTeam = (teamData: Omit<Team, 'id'>) => {
-    const newTeam = {
-      ...teamData,
-      id: Math.max(...teams.map(t => t.id)) + 1
-    };
-    setTeams([...teams, newTeam]);
-  };
-
-  const handleEditTeam = (id: number, teamData: Partial<Team>) => {
-    setTeams(teams.map(t => 
-      t.id === id ? { ...t, ...teamData } : t
-    ));
-  };
-
-  const handleDeleteTeam = (id: number) => {
-    setTeams(teams.filter(t => t.id !== id));
-  };
-
-  // Participant operations
-  const handleAddParticipant = (participantData: Omit<Participant, 'id'>) => {
-    const newParticipant = {
-      ...participantData,
-      id: Math.max(...participants.map(p => p.id)) + 1
-    };
-    setParticipants([...participants, newParticipant]);
-  };
-
-  const handleEditParticipant = (id: number, participantData: Partial<Participant>) => {
-    setParticipants(participants.map(p => 
-      p.id === id ? { ...p, ...participantData } : p
-    ));
-  };
-
-  const handleDeleteParticipant = (id: number) => {
-    setParticipants(participants.filter(p => p.id !== id));
-  };
-
-  // Venue operations
-  const handleAddVenue = (venueData: Omit<Venue, 'id'>) => {
-    const newVenue = {
-      ...venueData,
-      id: Math.max(...venues.map(v => v.id)) + 1
-    };
-    setVenues([...venues, newVenue]);
-  };
-
-  const handleEditVenue = (id: number, venueData: Partial<Venue>) => {
-    setVenues(venues.map(v => 
-      v.id === id ? { ...v, ...venueData } : v
-    ));
-  };
-
-  const handleDeleteVenue = (id: number) => {
-    setVenues(venues.filter(v => v.id !== id));
+  const handleBackToList = () => {
+    setViewingTournamentId(null);
   };
 
   const getSectionTitle = () => {
+    if (activeSection === 'tournaments' && viewingTournamentId) {
+      return 'Tournament Details';
+    }
     switch (activeSection) {
       case 'dashboard': return 'Dashboard';
       case 'tournaments': return 'Tournament Management';
@@ -117,49 +46,32 @@ function App() {
   };
 
   const renderContent = () => {
+    if (activeSection === 'tournaments' && viewingTournamentId) {
+      return (
+        <TournamentDetailPage
+          tournamentId={viewingTournamentId}
+          onBack={handleBackToList}
+        />
+      );
+    }
+    
     switch (activeSection) {
       case 'dashboard':
         return <Dashboard />;
       
       case 'tournaments':
         return (
-          <TournamentList
-            tournaments={tournaments}
-            onAdd={handleAddTournament}
-            onEdit={handleEditTournament}
-            onDelete={handleDeleteTournament}
-          />
+          <TournamentList onTournamentClick={handleTournamentClick} />
         );
       
       case 'teams':
-        return (
-          <TeamList
-            teams={teams}
-            onAdd={handleAddTeam}
-            onEdit={handleEditTeam}
-            onDelete={handleDeleteTeam}
-          />
-        );
+        return <TeamList />;
       
       case 'participants':
-        return (
-          <ParticipantList
-            participants={participants}
-            onAdd={handleAddParticipant}
-            onEdit={handleEditParticipant}
-            onDelete={handleDeleteParticipant}
-          />
-        );
+        return <ParticipantList />;
       
       case 'venues':
-        return (
-          <VenueList
-            venues={venues}
-            onAdd={handleAddVenue}
-            onEdit={handleEditVenue}
-            onDelete={handleDeleteVenue}
-          />
-        );
+        return <VenueList />;
       
       case 'matches':
         return (

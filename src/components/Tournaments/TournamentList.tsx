@@ -3,7 +3,11 @@ import { Plus, Edit, Trash2, Calendar, MapPin } from 'lucide-react';
 import { Tournament, TournamentService } from '../../services/TournamentService';
 import { TournamentForm } from './TournamentForm';
 
-export function TournamentList() {
+interface TournamentListProps {
+  onTournamentClick: (id: number) => void;
+}
+
+export function TournamentList({ onTournamentClick }: TournamentListProps) {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTournament, setEditingTournament] = useState<Tournament | null>(null);
@@ -101,18 +105,28 @@ export function TournamentList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tournaments.map((tournament) => (
-          <div key={tournament.id} className="bg-white rounded-lg shadow-md border border-gray-100 p-6">
+          <div 
+            key={tournament.id} 
+            className="bg-white rounded-lg shadow-md border border-gray-100 p-6 cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => onTournamentClick(tournament.id)}
+          >
             <div className="flex justify-between items-start mb-4">
               <h4 className="text-lg font-semibold text-gray-900">{tournament.name}</h4>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => handleEditClick(tournament)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditClick(tournament);
+                  }}
                   className="text-gray-400 hover:text-blue-600 transition-colors"
                 >
                   <Edit className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(tournament.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(tournament.id);
+                  }}
                   className="text-gray-400 hover:text-red-600 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
