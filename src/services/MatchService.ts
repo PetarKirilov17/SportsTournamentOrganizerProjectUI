@@ -2,6 +2,14 @@ import API_BASE_URL from './api';
 import { Team } from './TeamService';
 import { Venue } from './VenueService';
 
+export enum MatchStatus {
+  SCHEDULED = 'SCHEDULED',
+  LIVE = 'LIVE',
+  COMPLETED = 'COMPLETED',
+  POSTPONED = 'POSTPONED',
+  CANCELLED = 'CANCELLED',
+}
+
 export interface Match {
   id: number;
   tournament_id: number;
@@ -9,7 +17,7 @@ export interface Match {
   away_team: Team;
   venue: Venue;
   scheduled_at: string;
-  status: 'scheduled' | 'live' | 'completed' | 'postponed' | 'cancelled';
+  status: MatchStatus;
   home_score?: number;
   away_score?: number;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, UserPlus, X } from 'lucide-react';
 import { Registration, RegistrationService, RegistrationStatus } from '../../../services/RegistrationService';
 import { Team, TeamService } from '../../../services/TeamService';
@@ -63,7 +63,6 @@ export function ManageTeams({ tournamentId }: ManageTeamsProps) {
     }
   };
 
-  const invitedTeams = registrations.filter(r => r.status === RegistrationStatus.INVITED);
   const registeredTeamIds = registrations.map(r => r.team.id);
   const availableTeams = allTeams.filter(t => !registeredTeamIds.includes(t.id));
 
@@ -84,7 +83,7 @@ export function ManageTeams({ tournamentId }: ManageTeamsProps) {
               <ul className="divide-y divide-gray-200">
                 {registrations.map(reg => (
                   
-                  <li key={reg.team_id} className="py-2 flex justify-between items-center">
+                  <li key={reg.id} className="py-2 flex justify-between items-center">
                     <span>{reg.team.name}</span>
                     <select
                       value={reg.status}
