@@ -1,3 +1,4 @@
+import API_BASE_URL from './api';
 import { Participant } from '../types';
 
 export interface TeamMembership {
@@ -38,7 +39,7 @@ const transformParticipantResponse = (data: any): ParticipantWithMemberships => 
 
 export const ParticipantService = {
   getParticipants: async (): Promise<ParticipantWithMemberships[]> => {
-    const response = await fetch('/participants');
+    const response = await fetch(`${API_BASE_URL}/participants`);
     if (!response.ok) {
       throw new Error('Failed to fetch participants');
     }
@@ -47,7 +48,7 @@ export const ParticipantService = {
   },
 
   getParticipantById: async (id: number): Promise<ParticipantWithMemberships> => {
-    const response = await fetch(`/participants/${id}`);
+    const response = await fetch(`${API_BASE_URL}/participants/${id}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch participant with id ${id}`);
     }
@@ -64,7 +65,7 @@ export const ParticipantService = {
       category: participantData.category.toUpperCase(),
     };
 
-    const response = await fetch('/participants', {
+    const response = await fetch(`${API_BASE_URL}/participants`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export const ParticipantService = {
     if (participantData.email !== undefined) apiData.email = participantData.email;
     if (participantData.category !== undefined) apiData.category = participantData.category.toUpperCase();
 
-    const response = await fetch(`/participants/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/participants/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ export const ParticipantService = {
   },
 
   deleteParticipant: async (id: number): Promise<void> => {
-    const response = await fetch(`/participants/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/participants/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {

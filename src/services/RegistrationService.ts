@@ -1,5 +1,5 @@
 import API_BASE_URL from './api';
-import { Team } from './TeamService';
+import { Team } from  '../types';
 
 export enum RegistrationStatus {
   INVITED = 'INVITED',

@@ -1,8 +1,9 @@
+import API_BASE_URL from './api';
 import { Venue } from '../types';
 
 export const VenueService = {
   getVenues: async (): Promise<Venue[]> => {
-    const response = await fetch('/venues');
+    const response = await fetch(`${API_BASE_URL}/venues`);
     if (!response.ok) {
       throw new Error('Failed to fetch venues');
     }
@@ -10,7 +11,7 @@ export const VenueService = {
   },
 
   getVenueById: async (id: number): Promise<Venue> => {
-    const response = await fetch(`/venues/${id}`);
+    const response = await fetch(`${API_BASE_URL}/venues/${id}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch venue with id ${id}`);
     }
@@ -18,7 +19,7 @@ export const VenueService = {
   },
 
   createVenue: async (venueData: Omit<Venue, 'id'>): Promise<Venue> => {
-    const response = await fetch('/venues', {
+    const response = await fetch(`${API_BASE_URL}/venues`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ export const VenueService = {
   },
 
   updateVenue: async (id: number, venueData: Partial<Omit<Venue, 'id'>>): Promise<Venue> => {
-    const response = await fetch(`/venues/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/venues/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ export const VenueService = {
   },
 
   deleteVenue: async (id: number): Promise<void> => {
-    const response = await fetch(`/venues/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/venues/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) {
