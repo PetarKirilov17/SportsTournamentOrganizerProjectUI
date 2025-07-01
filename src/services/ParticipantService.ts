@@ -27,12 +27,12 @@ const transformParticipantResponse = (data: any): ParticipantWithMemberships => 
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     teamMemberships: data.team_memberships?.map((membership: any) => ({
-      teamId: membership.team_id,
-      teamName: membership.team_name,
-      teamCategory: membership.team_category?.toLowerCase() as 'amateur' | 'professional' | 'youth',
+      teamId: membership.team_id ?? membership.teamId,
+      teamName: membership.team_name ?? membership.teamName,
+      teamCategory: (membership.team_category ?? membership.teamCategory)?.toLowerCase() as 'amateur' | 'professional' | 'youth',
       role: membership.role,
-      jerseyNumber: membership.jersey_number,
-      addedAt: membership.added_at,
+      jerseyNumber: membership.jersey_number ?? membership.jerseyNumber,
+      addedAt: membership.added_at ?? membership.addedAt,
     })) || [],
   };
 };
