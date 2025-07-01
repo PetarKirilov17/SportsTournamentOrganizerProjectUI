@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, UserPlus, X } from 'lucide-react';
 import { Registration, RegistrationService, RegistrationStatus } from '../../../services/RegistrationService';
 import { Team, TeamService } from '../../../services/TeamService';
 
 interface ManageTeamsProps {
   tournamentId: number;
+  onChange?: () => void;
 }
 
-export function ManageTeams({ tournamentId }: ManageTeamsProps) {
+export function ManageTeams({ tournamentId, onChange }: ManageTeamsProps) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,7 @@ export function ManageTeams({ tournamentId }: ManageTeamsProps) {
       setShowInviteModal(false);
       setSelectedTeam(null);
       fetchData(); // Refresh data
+      if (onChange) onChange();
     } catch (err) {
       setError('Failed to invite team');
       console.error(err);
@@ -57,12 +59,14 @@ export function ManageTeams({ tournamentId }: ManageTeamsProps) {
     try {
       await RegistrationService.updateRegistration(registrationId, tournamentId, teamId, status);
       fetchData(); // Refresh data
+      if (onChange) onChange();
     } catch (err) {
       setError('Failed to update registration status');
       console.error(err);
     }
   };
 
+  const invitedTeams = registrations.filter(r => r.status === RegistrationStatus.INVITED);
   const registeredTeamIds = registrations.map(r => r.team.id);
   const availableTeams = allTeams.filter(t => !registeredTeamIds.includes(t.id));
 

@@ -7,9 +7,10 @@ import {VenueService} from "../../../services/VenueService.ts";
 
 interface ManageMatchesProps {
   tournamentId: number;
+  onChange?: () => void;
 }
 
-export function ManageMatches({ tournamentId }: ManageMatchesProps) {
+export function ManageMatches({ tournamentId, onChange }: ManageMatchesProps) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +132,7 @@ export function ManageMatches({ tournamentId }: ManageMatchesProps) {
       setShowModal(false);
       setEditingMatch(null);
       fetchData();
+      if (onChange) onChange();
     } catch (err) {
       setFormError('Failed to save match');
       console.error(err);

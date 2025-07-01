@@ -4,9 +4,10 @@ import { TournamentService, LeaderboardEntry } from '../../../services/Tournamen
 
 interface LeaderboardProps {
   tournamentId: number;
+  refreshKey?: number;
 }
 
-export function Leaderboard({ tournamentId }: LeaderboardProps) {
+export function Leaderboard({ tournamentId, refreshKey }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +17,7 @@ export function Leaderboard({ tournamentId }: LeaderboardProps) {
       .then(setEntries)
       .catch(() => setError('Failed to fetch leaderboard'))
       .finally(() => setLoading(false));
-  }, [tournamentId]);
+  }, [tournamentId, refreshKey]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
