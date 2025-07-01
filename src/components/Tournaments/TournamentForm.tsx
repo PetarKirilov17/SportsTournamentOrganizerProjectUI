@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Tournament } from '../../services/TournamentService';
+import { Tournament } from '../../types';
 
 interface TournamentFormProps {
   tournament?: Tournament | null;
@@ -11,22 +11,24 @@ interface TournamentFormProps {
 export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFormProps) {
   const [formData, setFormData] = useState({
     name: '',
-    sport_type: '',
-    start_date: '',
-    end_date: '',
+    sportType: '',
+    startDate: '',
+    endDate: '',
     location: '',
     rules: '',
+    status: 'upcoming' as 'upcoming' | 'ongoing' | 'completed' | 'cancelled',
   });
 
   useEffect(() => {
     if (tournament) {
       setFormData({
         name: tournament.name,
-        sport_type: tournament.sport_type,
-        start_date: tournament.start_date.split('T')[0], // Format for date input
-        end_date: tournament.end_date.split('T')[0],     // Format for date input
+        sportType: tournament.sportType,
+        startDate: tournament.startDate.split('T')[0], // Format for date input
+        endDate: tournament.endDate.split('T')[0],     // Format for date input
         location: tournament.location || '',
         rules: tournament.rules || '',
+        status: tournament.status,
       });
     }
   }, [tournament]);
@@ -68,8 +70,8 @@ export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFor
           <input
             type="text"
             required
-            value={formData.sport_type}
-            onChange={(e) => setFormData({ ...formData, sport_type: e.target.value })}
+            value={formData.sportType}
+            onChange={(e) => setFormData({ ...formData, sportType: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -81,8 +83,8 @@ export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFor
           <input
             type="date"
             required
-            value={formData.start_date}
-            onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+            value={formData.startDate}
+            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -94,8 +96,8 @@ export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFor
           <input
             type="date"
             required
-            value={formData.end_date}
-            onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+            value={formData.endDate}
+            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -110,6 +112,23 @@ export function TournamentForm({ tournament, onSubmit, onCancel }: TournamentFor
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Status *
+          </label>
+          <select
+            required
+            value={formData.status}
+            onChange={(e) => setFormData({ ...formData, status: e.target.value as 'upcoming' | 'ongoing' | 'completed' | 'cancelled' })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
         </div>
 
         <div className="md:col-span-2">

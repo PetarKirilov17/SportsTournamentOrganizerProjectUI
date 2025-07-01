@@ -8,7 +8,7 @@ import { TeamList } from './components/Teams/TeamList';
 import { ParticipantList } from './components/Participants/ParticipantList';
 import { VenueList } from './components/Venues/VenueList';
 import { SimpleList } from './components/Common/SimpleList';
-import { 
+import {
   mockMatches,
   mockRegistrations,
   mockNotifications
@@ -54,7 +54,7 @@ function App() {
         />
       );
     }
-    
+
     switch (activeSection) {
       case 'dashboard':
         return <Dashboard />;
@@ -79,8 +79,8 @@ function App() {
             title="Scheduled Matches"
             items={mockMatches.map(match => ({
               id: match.id,
-              title: `${match.home_team.name} vs ${match.away_team.name}`,
-              subtitle: `${new Date(match.scheduled_at).toLocaleDateString()} • ${match.venue.name}`,
+              title: `${match.homeTeam.name} vs ${match.awayTeam.name}`,
+              subtitle: `${new Date(match.scheduledAt).toLocaleDateString()} • ${match.venue.name}`,
               status: match.status,
               icon: Calendar
             }))}
@@ -93,9 +93,9 @@ function App() {
           <SimpleList
             title="Tournament Registrations"
             items={mockRegistrations.map(reg => ({
-              id: reg.team_id,
+              id: reg.teamId,
               title: reg.team.name,
-              subtitle: `Tournament ID: ${reg.tournament_id}`,
+              subtitle: `Tournament ID: ${reg.tournamentId}`,
               status: reg.status,
               icon: UserCheck
             }))}
@@ -110,7 +110,7 @@ function App() {
             items={mockNotifications.map(notif => ({
               id: notif.id,
               title: notif.message,
-              subtitle: `${notif.type} • ${new Date(notif.created_at).toLocaleDateString()}`,
+              subtitle: `${notif.type} • ${new Date(notif.createdAt).toLocaleDateString()}`,
               status: notif.read ? 'read' : 'unread',
               icon: Bell
             }))}

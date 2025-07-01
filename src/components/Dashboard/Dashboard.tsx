@@ -66,7 +66,7 @@ export function Dashboard() {
               <div key={tournament.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <p className="font-medium text-gray-900">{tournament.name}</p>
-                  <p className="text-sm text-gray-500">{tournament.sport_type} • {tournament.location}</p>
+                  <p className="text-sm text-gray-500">{tournament.sportType} • {tournament.location}</p>
                 </div>
                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                   tournament.status === 'upcoming' ? 'bg-yellow-100 text-yellow-800' :
@@ -87,10 +87,10 @@ export function Dashboard() {
               <div key={match.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <p className="font-medium text-gray-900">
-                    {match.home_team.name} vs {match.away_team.name}
+                    {match.homeTeam.name} vs {match.awayTeam.name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {new Date(match.scheduled_at).toLocaleDateString()} • {match.venue.name}
+                    {new Date(match.scheduledAt).toLocaleDateString()} • {match.venue.name}
                   </p>
                 </div>
                 <TrendingUp className="w-4 h-4 text-gray-400" />

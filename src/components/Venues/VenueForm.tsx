@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Venue } from '../../types';
 import { X } from 'lucide-react';
-import { Venue } from '../../services/VenueService';
 
 interface VenueFormProps {
   venue?: Venue | null;

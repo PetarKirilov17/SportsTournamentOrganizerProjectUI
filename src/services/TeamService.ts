@@ -1,10 +1,5 @@
 import API_BASE_URL from './api';
-
-export interface Team {
-  id: number;
-  name: string;
-  category?: 'amateur' | 'professional' | 'youth';
-}
+import { Team } from '../types';
 
 export const TeamService = {
   getTeams: async (): Promise<Team[]> => {
@@ -56,7 +51,9 @@ export const TeamService = {
       method: 'DELETE',
     });
     if (!response.ok) {
-      throw new Error(`Failed to delete team with id ${id}`);
+      const errorData = await response.json();
+      const errorMessage = errorData.message || `Failed to delete team with id ${id}`;
+      throw new Error(errorMessage);
     }
   },
 }; 
