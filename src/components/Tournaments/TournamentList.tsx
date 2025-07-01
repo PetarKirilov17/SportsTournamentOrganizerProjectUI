@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Calendar, MapPin } from 'lucide-react';
 import { TournamentService } from '../../services/TournamentService';
 import { Tournament } from '../../types';
