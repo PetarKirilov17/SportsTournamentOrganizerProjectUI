@@ -1,6 +1,5 @@
 import API_BASE_URL from './api';
-import { Team } from './TeamService';
-import { Venue } from './VenueService';
+import { Team, Venue } from '../types';
 
 export enum MatchStatus {
   SCHEDULED = 'SCHEDULED',

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Match, MatchService, MatchStatus } from '../../../services/MatchService';
-import { Team, TeamService } from '../../../services/TeamService';
-import { Venue, VenueService } from '../../../services/VenueService';
+import {Team, Venue} from "../../../types.ts";
+import {TeamService} from "../../../services/TeamService.ts";
+import {VenueService} from "../../../services/VenueService.ts";
 
 interface ManageMatchesProps {
   tournamentId: number;

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Users, Plus, Edit, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Users, Plus } from 'lucide-react';
 import { TeamService } from '../../services/TeamService';
 import { Team } from '../../types';
 import { TeamMemberList } from './TeamMemberList';
