@@ -80,7 +80,7 @@ export function ManageMatches({ tournamentId }: ManageMatchesProps) {
       home_team_id: match.home_team.id.toString(),
       away_team_id: match.away_team.id.toString(),
       venue_id: match.venue.id.toString(),
-      scheduled_at: match.scheduled_at.slice(0, 16),
+      scheduled_at: match.scheduled_at,
       status: match.status,
       home_score: match.home_score?.toString() ?? '',
       away_score: match.away_score?.toString() ?? '',
@@ -109,7 +109,7 @@ export function ManageMatches({ tournamentId }: ManageMatchesProps) {
     }
     try {
       if (editingMatch) {
-        await MatchService.updateMatch(editingMatch.id, {
+        await MatchService.updateMatch(tournamentId, editingMatch.id, {
           home_team_id: Number(form.home_team_id),
           away_team_id: Number(form.away_team_id),
           venue_id: Number(form.venue_id),

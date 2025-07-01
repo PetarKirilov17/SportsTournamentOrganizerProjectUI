@@ -45,7 +45,7 @@ export const MatchService = {
     return response.json();
   },
 
-  updateMatch: async (tournamentId: number, matchId: number, matchData): Promise<Match> => {
+  updateMatch: async (tournamentId: number, matchId: number, matchData: unknown): Promise<Match> => {
     const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/matches/${matchId}`, {
       method: 'PUT',
       headers: {
