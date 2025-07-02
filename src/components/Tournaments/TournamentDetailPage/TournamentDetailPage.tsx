@@ -14,6 +14,9 @@ export function TournamentDetailPage({ tournamentId, onBack }: TournamentDetailP
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshLeaderboard, setRefreshLeaderboard] = useState(0);
+
+  const triggerLeaderboardRefresh = () => setRefreshLeaderboard((c) => c + 1);
 
   useEffect(() => {
     const fetchTournament = async () => {
@@ -59,17 +62,17 @@ export function TournamentDetailPage({ tournamentId, onBack }: TournamentDetailP
       </div>
 
       <div className="space-y-6">
-        <Leaderboard tournamentId={tournament.id} />
+        <Leaderboard tournamentId={tournament.id} refreshKey={refreshLeaderboard} />
       </div>
       
       {isBeforeTournamentStart && (
         <div className="space-y-6">
-          <ManageTeams tournamentId={tournament.id} />
+          <ManageTeams tournamentId={tournament.id} onChange={triggerLeaderboardRefresh} />
         </div>
       )}
 
       <div className="space-y-6">
-        <ManageMatches tournamentId={tournament.id} />
+        <ManageMatches tournamentId={tournament.id} onChange={triggerLeaderboardRefresh} />
       </div>
     </div>
   );

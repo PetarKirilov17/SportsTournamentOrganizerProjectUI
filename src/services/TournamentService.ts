@@ -1,6 +1,12 @@
 import { Tournament } from '../types';
 import API_BASE_URL from "./api.ts";
 
+export interface LeaderboardEntry {
+  team_id: number;
+  team_name: string;
+  wins: number;
+}
+
 export const TournamentService = {
   getTournaments: async (): Promise<Tournament[]> => {
     const response = await fetch(`${API_BASE_URL}/tournaments`);
@@ -53,5 +59,11 @@ export const TournamentService = {
     if (!response.ok) {
       throw new Error(`Failed to delete tournament with id ${id}`);
     }
+  },
+
+  getLeaderboard: async (tournamentId: number): Promise<LeaderboardEntry[]> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/leaderboard`);
+    if (!response.ok) throw new Error('Failed to fetch leaderboard');
+    return response.json();
   },
 }; 
