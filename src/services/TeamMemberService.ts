@@ -23,6 +23,14 @@ export interface UpdateTeamMemberDTO {
   jersey_number?: number;
 }
 
+export interface AvailableParticipant {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  category: 'amateur' | 'professional' | 'youth';
+}
+
 export interface ApiResponseDTO<T> {
   success: boolean;
   data: T;
@@ -171,5 +179,31 @@ export const TeamMemberService = {
     }
     const data = await response.json();
     return data.data;
+  },
+
+  getAvailableParticipantsForTeam: async (teamId: number): Promise<AvailableParticipant[]> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/available`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch available participants');
+      }
+      
+      const data = await response.json();
+      // Handle both direct array response and wrapped response
+      const participants = Array.isArray(data) ? data : data.data || [];
+      
+      return participants.map((participant: any) => ({
+        id: participant.id,
+        firstName: participant.first_name || participant.firstName,
+        lastName: participant.last_name || participant.lastName,
+        email: participant.email,
+        category: (participant.category || 'amateur').toLowerCase() as 'amateur' | 'professional' | 'youth',
+      }));
+    } catch (error) {
+      console.error('Error in getAvailableParticipantsForTeam:', error);
+      throw error;
+    }
   },
 }; 

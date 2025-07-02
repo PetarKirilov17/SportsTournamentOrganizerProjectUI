@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, User, Mail, Plus } from 'lucide-react';
-import { ParticipantService, ParticipantWithMemberships } from '../../services/ParticipantService';
-import { TeamMemberService, AddTeamMemberDTO } from '../../services/TeamMemberService';
+import { TeamMemberService, AddTeamMemberDTO, AvailableParticipant } from '../../services/TeamMemberService';
 
 interface AddParticipantModalProps {
   teamId: number;
@@ -20,57 +19,51 @@ export function AddParticipantModal({
 }: AddParticipantModalProps) {
   console.log('AddParticipantModal: Received props - teamId:', teamId, 'teamName:', teamName, 'isOpen:', isOpen);
   
-  const [participants, setParticipants] = useState<ParticipantWithMemberships[]>([]);
-  const [filteredParticipants, setFilteredParticipants] = useState<ParticipantWithMemberships[]>([]);
+  const [participants, setParticipants] = useState<AvailableParticipant[]>([]);
+  const [filteredParticipants, setFilteredParticipants] = useState<AvailableParticipant[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedParticipant, setSelectedParticipant] = useState<ParticipantWithMemberships | null>(null);
+  const [selectedParticipant, setSelectedParticipant] = useState<AvailableParticipant | null>(null);
   const [formData, setFormData] = useState({
     role: '',
     jerseyNumber: '',
   });
-  const [existingMemberIds, setExistingMemberIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (isOpen) {
-      fetchParticipants();
+      fetchAvailableParticipants();
     }
   }, [isOpen, teamId]);
 
   useEffect(() => {
-    // Only filter if we have participants loaded
+    // Filter participants based on search term
     if (participants.length > 0) {
       filterParticipants();
     }
-  }, [participants, searchTerm, existingMemberIds]);
+  }, [participants, searchTerm]);
 
-  const fetchParticipants = async () => {
+  const fetchAvailableParticipants = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Fetch all participants first
-      const allParticipants = await ParticipantService.getParticipants();
-      setParticipants(allParticipants);
-      
-      // Get existing team members to filter them out - only if teamId is valid
-      if (teamId && teamId !== undefined && teamId !== null) {
-        console.log('AddParticipantModal: Fetching existing team members for teamId:', teamId);
-        const teamMembers = await TeamMemberService.getTeamMembers(teamId);
-        const existingIds = new Set(teamMembers.map(member => member.participantId));
-        setExistingMemberIds(existingIds);
-      } else {
-        console.log('AddParticipantModal: teamId is not valid, skipping team members fetch:', teamId);
-        setExistingMemberIds(new Set());
+      // Validate teamId before making the API call
+      if (!teamId || teamId === undefined || teamId === null) {
+        console.error('AddParticipantModal: Invalid teamId:', teamId);
+        setError('Invalid team ID');
+        setParticipants([]);
+        return;
       }
       
-      // Filter participants after both data sources are loaded
-      filterParticipants();
+      console.log('AddParticipantModal: Fetching available participants for teamId:', teamId);
+      const availableParticipants = await TeamMemberService.getAvailableParticipantsForTeam(teamId);
+      setParticipants(availableParticipants || []);
       
     } catch (err) {
-      console.error('AddParticipantModal: Error fetching participants:', err);
-      setError('Failed to fetch participants');
+      console.error('AddParticipantModal: Error fetching available participants:', err);
+      setError('Failed to fetch available participants');
+      setParticipants([]);
     } finally {
       setLoading(false);
     }
@@ -84,16 +77,15 @@ export function AddParticipantModal({
     }
     
     const filtered = participants.filter(participant => {
-      const isNotInTeam = !existingMemberIds.has(participant.id);
       const matchesSearch = participant.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            participant.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            participant.email.toLowerCase().includes(searchTerm.toLowerCase());
-      return isNotInTeam && matchesSearch;
+      return matchesSearch;
     });
     setFilteredParticipants(filtered);
   };
 
-  const handleParticipantSelect = (participant: ParticipantWithMemberships) => {
+  const handleParticipantSelect = (participant: AvailableParticipant) => {
     setSelectedParticipant(participant);
   };
 
@@ -191,7 +183,7 @@ export function AddParticipantModal({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search participants..."
+                placeholder="Search available participants..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -210,6 +202,9 @@ export function AddParticipantModal({
                     <User className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p>
                       {searchTerm ? 'No participants found matching your search.' : 'No available participants to add.'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Only participants matching the team category are shown.
                     </p>
                   </div>
                 ) : (
@@ -261,6 +256,15 @@ export function AddParticipantModal({
                 <div className="text-sm text-gray-600">
                   <div className="font-medium">{selectedParticipant.firstName} {selectedParticipant.lastName}</div>
                   <div>{selectedParticipant.email}</div>
+                  <div className="mt-1">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      selectedParticipant.category === 'professional' ? 'bg-blue-100 text-blue-800' :
+                      selectedParticipant.category === 'amateur' ? 'bg-green-100 text-green-800' :
+                      'bg-orange-100 text-orange-800'
+                    }`}>
+                      {selectedParticipant.category}
+                    </span>
+                  </div>
                 </div>
               </div>
 

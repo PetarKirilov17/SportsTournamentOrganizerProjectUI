@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Edit, Trash2, Mail, User } from 'lucide-react';
-import { Participant, ParticipantService } from '../../services/ParticipantService';
+import { Plus, Edit, Trash2, Mail, User, UserX } from 'lucide-react';
+import { ParticipantService, ParticipantWithMemberships, TeamMembership } from '../../services/ParticipantService';
+import { Participant } from '../../types';
 import { ParticipantForm } from './ParticipantForm';
 import { formatDateOnly } from '../../utils/dateUtils';
 
 export function ParticipantList() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [participants, setParticipants] = useState<ParticipantWithMemberships[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [editingParticipant, setEditingParticipant] = useState<ParticipantWithMemberships | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const editingParticipantRef = useRef<Participant | null>(null);
+  const editingParticipantRef = useRef<ParticipantWithMemberships | null>(null);
 
   useEffect(() => {
     fetchParticipants();
@@ -75,7 +76,7 @@ export function ParticipantList() {
     }
   };
 
-  const handleEditClick = (participant: Participant) => {
+  const handleEditClick = (participant: ParticipantWithMemberships) => {
     setEditingParticipant(participant);
     setShowForm(true);
   };
@@ -169,22 +170,47 @@ export function ParticipantList() {
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
                       {participant.teamMemberships && participant.teamMemberships.length > 0 ? (
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                           {participant.teamMemberships.map((membership, index) => (
-                            <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                              <span className="font-medium">{membership.teamName}</span>
-                              <span className="text-gray-500 ml-1">({membership.role})</span>
-                              {membership.jerseyNumber && (
-                                <span className="text-gray-500 ml-1">#{membership.jerseyNumber}</span>
-                              )}
-                              <div className="text-gray-400 text-xs mt-1">
-                                Added: {formatDateOnly(membership.addedAt)}
+                            <div key={index} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  <span className="font-semibold text-blue-900 text-sm">
+                                    {membership.teamName}
+                                  </span>
+                                </div>
+                                {membership.jerseyNumber && (
+                                  <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[24px] text-center">
+                                    #{membership.jerseyNumber}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-xs text-gray-600 font-medium">Role:</span>
+                                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                                    {membership.role}
+                                  </span>
+                                </div>
+                                
+                                <div className="text-xs text-gray-500">
+                                  {formatDateOnly(membership.addedAt)}
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-gray-400 text-xs">No teams</span>
+                        <div className="flex items-center justify-center py-4">
+                          <div className="text-center">
+                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                              <UserX className="w-4 h-4 text-gray-400" />
+                            </div>
+                            <span className="text-gray-400 text-xs">No teams</span>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </td>
