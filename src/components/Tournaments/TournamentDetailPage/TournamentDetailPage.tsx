@@ -48,7 +48,7 @@ export function TournamentDetailPage({ tournamentId, onBack }: TournamentDetailP
     return <div>Tournament not found.</div>;
   }
   
-  const isBeforeTournamentStart = new Date() < new Date(tournament.start_date);
+  const isBeforeTournamentStart = new Date() < new Date(tournament.startDate);
 
   return (
     <div className="space-y-8">

@@ -1,4 +1,4 @@
-import API_BASE_URL from './api';
+import { API_BASE_URL } from './api';
 
 export interface Notification {
   id: number;
@@ -12,13 +12,16 @@ export interface Notification {
   read: boolean;
 }
 
+function authHeaders(): HeadersInit {
+  const token = localStorage.getItem('jwt');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 export const NotificationService = {
   createNotification: async (notificationData: Omit<Notification, 'id' | 'created_at' | 'read'>): Promise<Notification> => {
     const response = await fetch(`${API_BASE_URL}/notifications`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() } as HeadersInit,
       body: JSON.stringify(notificationData),
     });
     if (!response.ok) {

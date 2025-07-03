@@ -127,6 +127,8 @@ export function ManageMatches({ tournamentId, onChange }: ManageMatchesProps) {
           venue_id: Number(form.venue_id),
           scheduled_at: form.scheduled_at,
           status: form.status,
+          home_score: form.home_score ? Number(form.home_score) : undefined,
+          away_score: form.away_score ? Number(form.away_score) : undefined,
         });
       }
       setShowModal(false);

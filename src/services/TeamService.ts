@@ -1,9 +1,14 @@
-import API_BASE_URL from './api';
+import { API_BASE_URL } from './api';
 import { Team } from '../types';
+
+function authHeaders(): HeadersInit {
+  const token = localStorage.getItem('jwt');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
 export const TeamService = {
   getTeams: async (): Promise<Team[]> => {
-    const response = await fetch(`${API_BASE_URL}/teams`);
+    const response = await fetch(`${API_BASE_URL}/teams`, { headers: authHeaders() });
     if (!response.ok) {
       throw new Error('Failed to fetch teams');
     }
@@ -11,7 +16,7 @@ export const TeamService = {
   },
 
   getTeamById: async (id: number): Promise<Team> => {
-    const response = await fetch(`${API_BASE_URL}/teams/${id}`);
+    const response = await fetch(`${API_BASE_URL}/teams/${id}`, { headers: authHeaders() });
     if (!response.ok) {
       throw new Error(`Failed to fetch team with id ${id}`);
     }
@@ -21,9 +26,7 @@ export const TeamService = {
   createTeam: async (teamData: Omit<Team, 'id'>): Promise<Team> => {
     const response = await fetch(`${API_BASE_URL}/teams`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() } as HeadersInit,
       body: JSON.stringify(teamData),
     });
     if (!response.ok) {
@@ -35,9 +38,7 @@ export const TeamService = {
   updateTeam: async (id: number, teamData: Partial<Omit<Team, 'id'>>): Promise<Team> => {
     const response = await fetch(`${API_BASE_URL}/teams/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() } as HeadersInit,
       body: JSON.stringify(teamData),
     });
     if (!response.ok) {
@@ -49,6 +50,7 @@ export const TeamService = {
   deleteTeam: async (id: number): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/teams/${id}`, {
       method: 'DELETE',
+      headers: authHeaders(),
     });
     if (!response.ok) {
       const errorData = await response.json();

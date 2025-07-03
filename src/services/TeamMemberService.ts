@@ -1,4 +1,4 @@
-import API_BASE_URL from './api';
+import { API_BASE_URL } from './api';
 
 export interface TeamMember {
   id: number;
@@ -53,10 +53,15 @@ const transformTeamMemberResponse = (data: any): TeamMember => {
   };
 };
 
+function authHeaders(): HeadersInit {
+  const token = localStorage.getItem('jwt');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 export const TeamMemberService = {
   getTeamMembers: async (teamId: number): Promise<TeamMember[]> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members`);
+      const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members`, { headers: authHeaders() });
       
       if (response.status === 404) {
         // Team members endpoint doesn't exist yet, return empty array
@@ -83,7 +88,7 @@ export const TeamMemberService = {
   },
 
   getTeamMemberById: async (teamId: number, memberId: number): Promise<TeamMember> => {
-    const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/${memberId}`);
+    const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/${memberId}`, { headers: authHeaders() });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Failed to fetch team member with id ${memberId}`);
@@ -98,9 +103,7 @@ export const TeamMemberService = {
     
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() } as HeadersInit,
       body: JSON.stringify(addDTO),
     });
     
@@ -121,9 +124,7 @@ export const TeamMemberService = {
     
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/${memberId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() } as HeadersInit,
       body: JSON.stringify(updateDTO),
     });
     
@@ -141,6 +142,7 @@ export const TeamMemberService = {
   removeParticipantFromTeam: async (teamId: number, memberId: number): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/${memberId}`, {
       method: 'DELETE',
+      headers: authHeaders(),
     });
     
     if (!response.ok) {
@@ -152,6 +154,7 @@ export const TeamMemberService = {
   removeParticipantFromTeamByParticipantId: async (teamId: number, participantId: number): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/participant/${participantId}`, {
       method: 'DELETE',
+      headers: authHeaders(),
     });
     
     if (!response.ok) {
@@ -161,7 +164,7 @@ export const TeamMemberService = {
   },
 
   getParticipantsByRole: async (teamId: number, role: string): Promise<TeamMember[]> => {
-    const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/role/${role}`);
+    const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/role/${role}`, { headers: authHeaders() });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || 'Failed to fetch participants by role');
@@ -172,7 +175,7 @@ export const TeamMemberService = {
   },
 
   isParticipantInTeam: async (teamId: number, participantId: number): Promise<boolean> => {
-    const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/check/${participantId}`);
+    const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/check/${participantId}`, { headers: authHeaders() });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || 'Failed to check participant membership');
@@ -183,7 +186,7 @@ export const TeamMemberService = {
 
   getAvailableParticipantsForTeam: async (teamId: number): Promise<AvailableParticipant[]> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/available`);
+      const response = await fetch(`${API_BASE_URL}/teams/${teamId}/members/available`, { headers: authHeaders() });
       
       if (!response.ok) {
         const errorData = await response.json();
