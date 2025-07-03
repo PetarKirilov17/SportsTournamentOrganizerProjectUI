@@ -1,11 +1,13 @@
 import React from 'react';
 import { Bell, Search, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   title: string;
 }
 
 export function Header({ title }: HeaderProps) {
+  const { user, logout } = useAuth();
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -34,7 +36,17 @@ export function Header({ title }: HeaderProps) {
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
               <User className="w-5 h-5 text-gray-600" />
             </div>
-            <span className="text-sm font-medium text-gray-700">Admin User</span>
+            <span className="text-sm font-medium text-gray-700">
+              {user ? user.username : 'Guest'}
+            </span>
+            {user && (
+              <button
+                onClick={logout}
+                className="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs font-semibold"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>

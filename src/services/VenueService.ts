@@ -1,9 +1,16 @@
-import API_BASE_URL from './api';
+import { API_BASE_URL } from './api';
 import { Venue } from '../types';
+
+function authHeaders(): HeadersInit {
+  const token = localStorage.getItem('jwt');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
 export const VenueService = {
   getVenues: async (): Promise<Venue[]> => {
-    const response = await fetch(`${API_BASE_URL}/venues`);
+    const response = await fetch(`${API_BASE_URL}/venues`, {
+      headers: authHeaders(),
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch venues');
     }
@@ -11,7 +18,9 @@ export const VenueService = {
   },
 
   getVenueById: async (id: number): Promise<Venue> => {
-    const response = await fetch(`${API_BASE_URL}/venues/${id}`);
+    const response = await fetch(`${API_BASE_URL}/venues/${id}`, {
+      headers: authHeaders(),
+    });
     if (!response.ok) {
       throw new Error(`Failed to fetch venue with id ${id}`);
     }
@@ -23,7 +32,8 @@ export const VenueService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      },
+        ...authHeaders(),
+      } as HeadersInit,
       body: JSON.stringify(venueData),
     });
     if (!response.ok) {
@@ -37,7 +47,8 @@ export const VenueService = {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-      },
+        ...authHeaders(),
+      } as HeadersInit,
       body: JSON.stringify(venueData),
     });
     if (!response.ok) {
@@ -49,6 +60,7 @@ export const VenueService = {
   deleteVenue: async (id: number): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/venues/${id}`, {
       method: 'DELETE',
+      headers: authHeaders(),
     });
     if (!response.ok) {
       throw new Error(`Failed to delete venue with id ${id}`);
