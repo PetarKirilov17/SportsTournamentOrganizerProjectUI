@@ -67,4 +67,20 @@ export interface Notification {
   matchId?: number;
   createdAt: string;
   read: boolean;
+}
+
+// Auth & User types
+export type UserRole = 'ADMIN' | 'PARTICIPANT';
+
+export interface User {
+  id: number;
+  username: string;
+  role: UserRole;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  login: (token: string) => void;
+  logout: () => void;
 } 

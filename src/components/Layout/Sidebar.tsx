@@ -16,14 +16,14 @@ interface SidebarProps {
 }
 
 const navigationItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home },
+  // { id: 'dashboard', label: 'Dashboard', icon: Home },
   { id: 'tournaments', label: 'Tournaments', icon: Trophy },
   { id: 'teams', label: 'Teams', icon: Users },
   { id: 'participants', label: 'Participants', icon: User },
   { id: 'venues', label: 'Venues', icon: MapPin },
-  { id: 'matches', label: 'Matches', icon: Calendar },
-  { id: 'registrations', label: 'Registrations', icon: UserCheck },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
+  // { id: 'matches', label: 'Matches', icon: Calendar },
+  // { id: 'registrations', label: 'Registrations', icon: UserCheck },
+  // { id: 'notifications', label: 'Notifications', icon: Bell },
 ];
 
 export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {

@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import LoginForm from './components/LoginForm';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Header } from './components/Layout/Header';
 import { Dashboard } from './components/Dashboard/Dashboard';
@@ -15,8 +18,8 @@ import {
 } from './data/mockData';
 import { Calendar, UserCheck, Bell } from 'lucide-react';
 
-function App() {
-  const [activeSection, setActiveSection] = useState('dashboard');
+function MainApp() {
+  const [activeSection, setActiveSection] = useState('tournaments');
   const [viewingTournamentId, setViewingTournamentId] = useState<number | null>(null);
 
   const handleTournamentClick = (id: number) => {
@@ -58,21 +61,16 @@ function App() {
     switch (activeSection) {
       case 'dashboard':
         return <Dashboard />;
-      
       case 'tournaments':
         return (
           <TournamentList onTournamentClick={handleTournamentClick} />
         );
-      
       case 'teams':
         return <TeamList />;
-      
       case 'participants':
         return <ParticipantList />;
-      
       case 'venues':
         return <VenueList />;
-      
       case 'matches':
         return (
           <SimpleList
@@ -87,7 +85,6 @@ function App() {
             emptyMessage="No matches scheduled yet."
           />
         );
-      
       case 'registrations':
         return (
           <SimpleList
@@ -102,7 +99,6 @@ function App() {
             emptyMessage="No registrations found."
           />
         );
-      
       case 'notifications':
         return (
           <SimpleList
@@ -117,7 +113,6 @@ function App() {
             emptyMessage="No notifications found."
           />
         );
-      
       default:
         return <Dashboard />;
     }
@@ -129,15 +124,33 @@ function App() {
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
       />
-      
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title={getSectionTitle()} />
-        
         <main className="flex-1 overflow-y-auto p-6">
           {renderContent()}
         </main>
       </div>
     </div>
+  );
+}
+
+function AuthGate() {
+  const { user } = useAuth();
+  if (!user) {
+    return <LoginForm />;
+  }
+  return <MainApp />;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/*" element={<AuthGate />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

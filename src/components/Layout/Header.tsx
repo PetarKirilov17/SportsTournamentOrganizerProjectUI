@@ -1,11 +1,13 @@
 import React from 'react';
 import { Bell, Search, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   title: string;
 }
 
 export function Header({ title }: HeaderProps) {
+  const { user, logout } = useAuth();
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -14,7 +16,7 @@ export function Header({ title }: HeaderProps) {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="relative">
+          {/* <div className="relative">
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
               type="text"
@@ -28,13 +30,23 @@ export function Header({ title }: HeaderProps) {
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               3
             </span>
-          </button>
+          </button> */}
           
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
               <User className="w-5 h-5 text-gray-600" />
             </div>
-            <span className="text-sm font-medium text-gray-700">Admin User</span>
+            <span className="text-sm font-medium text-gray-700">
+              {user ? user.username : 'Guest'}
+            </span>
+            {user && (
+              <button
+                onClick={logout}
+                className="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs font-semibold"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>
