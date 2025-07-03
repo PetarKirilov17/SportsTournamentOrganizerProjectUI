@@ -16,7 +16,7 @@ export function Header({ title }: HeaderProps) {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="relative">
+          {/* <div className="relative">
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
               type="text"
@@ -30,7 +30,7 @@ export function Header({ title }: HeaderProps) {
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               3
             </span>
-          </button>
+          </button> */}
           
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">

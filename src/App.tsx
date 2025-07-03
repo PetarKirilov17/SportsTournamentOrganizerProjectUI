@@ -19,7 +19,7 @@ import {
 import { Calendar, UserCheck, Bell } from 'lucide-react';
 
 function MainApp() {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('tournaments');
   const [viewingTournamentId, setViewingTournamentId] = useState<number | null>(null);
 
   const handleTournamentClick = (id: number) => {
